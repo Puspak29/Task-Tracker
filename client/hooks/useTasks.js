@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { taskApi } from '@/lib/api';
+import { statusToStatKey } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 export const useTasks = () => {
@@ -54,11 +55,11 @@ export const useTasks = () => {
     try {
       const res = await taskApi.create(data);
       setTasks((prev) => [res.data, ...prev]);
+      const statKey = statusToStatKey(res.data.status);
       setStats((prev) => ({
         ...prev,
         total: prev.total + 1,
-        [res.data.status === 'todo' ? 'todo' : res.data.status === 'in-progress' ? 'inProgress' : 'done']:
-          prev[res.data.status === 'todo' ? 'todo' : res.data.status === 'in-progress' ? 'inProgress' : 'done'] + 1,
+        [statKey]: prev[statKey] + 1,
       }));
       toast.success('Task created!', { id: toastId });
       return res.data;
@@ -90,10 +91,8 @@ export const useTasks = () => {
       const removed = tasks.find((t) => t._id === id);
       setTasks((prev) => prev.filter((t) => t._id !== id));
       if (removed) {
-        setStats((prev) => {
-          const key = removed.status === 'todo' ? 'todo' : removed.status === 'in-progress' ? 'inProgress' : 'done';
-          return { ...prev, total: prev.total - 1, [key]: prev[key] - 1 };
-        });
+        const statKey = statusToStatKey(removed.status);
+        setStats((prev) => ({ ...prev, total: prev.total - 1, [statKey]: prev[statKey] - 1 }));
       }
       toast.success('Task deleted.', { id: toastId });
     } catch (err) {

@@ -10,6 +10,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/context/AuthContext';
 import { Plus, Loader2 } from 'lucide-react';
+import { BackgroundOrbs } from '@/components/ui';
 
 export default function HomePage() {
   const router = useRouter();
@@ -47,9 +48,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* Background decorations - Orbs using palette colors */}
-      <div className="fixed rounded-full pointer-events-none z-0 filter blur-[120px] w-[600px] h-[600px] bg-brand/8 top-[-200px] left-[-150px]" />
-      <div className="fixed rounded-full pointer-events-none z-0 filter blur-[120px] w-[500px] h-[500px] bg-brand/5 bottom-[-100px] right-[-150px]" />
+      <BackgroundOrbs />
       <div className="fixed rounded-full pointer-events-none z-0 filter blur-[120px] w-[350px] h-[350px] bg-brand/4 top-[40%] left-[40%]" />
 
       <Navbar onNewTask={openCreate} />

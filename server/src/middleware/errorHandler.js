@@ -1,3 +1,5 @@
+const { sendError } = require('../utils/response');
+
 const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
@@ -24,11 +26,7 @@ const errorHandler = (err, req, res, next) => {
     message = `Duplicate value for field: ${field}`;
   }
 
-  res.status(statusCode).json({
-    success: false,
-    message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
+  sendError(res, statusCode, message, { stack: err.stack });
 };
 
 module.exports = errorHandler;

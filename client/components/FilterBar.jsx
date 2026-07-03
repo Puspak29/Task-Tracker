@@ -19,6 +19,60 @@ const SelectField = ({ id, value, onChange, options, className = '' }) => (
   </div>
 );
 
+const FILTER_GROUPS = [
+  {
+    label: 'Filter:',
+    icon: SlidersHorizontal,
+    fields: [
+      {
+        id: 'filter-status',
+        valueKey: 'status',
+        options: [
+          { value: 'all', label: 'All Status' },
+          { value: 'todo', label: 'To Do' },
+          { value: 'in-progress', label: 'In Progress' },
+          { value: 'done', label: 'Done' },
+        ],
+      },
+      {
+        id: 'filter-priority',
+        valueKey: 'priority',
+        options: [
+          { value: 'all', label: 'All Priority' },
+          { value: 'high', label: 'High' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'low', label: 'Low' },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Sort:',
+    icon: ArrowUpDown,
+    fields: [
+      {
+        id: 'sort-by',
+        valueKey: 'sortBy',
+        options: [
+          { value: 'createdAt', label: 'Date Created' },
+          { value: 'updatedAt', label: 'Last Updated' },
+          { value: 'dueDate', label: 'Due Date' },
+          { value: 'priority', label: 'Priority' },
+          { value: 'title', label: 'Title' },
+        ],
+      },
+      {
+        id: 'sort-order',
+        valueKey: 'order',
+        options: [
+          { value: 'desc', label: 'Descending' },
+          { value: 'asc', label: 'Ascending' },
+        ],
+      },
+    ],
+  },
+];
+
 export default function FilterBar({ filters, updateFilter }) {
   const hasActiveFilters =
     filters.status !== 'all' || filters.priority !== 'all' || filters.search !== '';
@@ -53,68 +107,24 @@ export default function FilterBar({ filters, updateFilter }) {
           )}
         </div>
 
-        {/* Filters group */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 text-xs text-[#EEEEEE]/50 font-semibold uppercase tracking-wider">
-            <SlidersHorizontal size={12} />
-            <span>Filter:</span>
+        {/* Filter & Sort groups */}
+        {FILTER_GROUPS.map(({ label, icon: Icon, fields }) => (
+          <div key={label} className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1.5 text-xs text-[#EEEEEE]/50 font-semibold uppercase tracking-wider">
+              <Icon size={12} />
+              <span>{label}</span>
+            </div>
+            {fields.map(({ id, valueKey, options }) => (
+              <SelectField
+                key={id}
+                id={id}
+                value={filters[valueKey]}
+                onChange={(v) => updateFilter(valueKey, v)}
+                options={options}
+              />
+            ))}
           </div>
-
-          <SelectField
-            id="filter-status"
-            value={filters.status}
-            onChange={(v) => updateFilter('status', v)}
-            options={[
-              { value: 'all', label: 'All Status' },
-              { value: 'todo', label: 'To Do' },
-              { value: 'in-progress', label: 'In Progress' },
-              { value: 'done', label: 'Done' },
-            ]}
-          />
-
-          <SelectField
-            id="filter-priority"
-            value={filters.priority}
-            onChange={(v) => updateFilter('priority', v)}
-            options={[
-              { value: 'all', label: 'All Priority' },
-              { value: 'high', label: 'High' },
-              { value: 'medium', label: 'Medium' },
-              { value: 'low', label: 'Low' },
-            ]}
-          />
-        </div>
-
-        {/* Sort group */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 text-xs text-[#EEEEEE]/50 font-semibold uppercase tracking-wider">
-            <ArrowUpDown size={12} />
-            <span>Sort:</span>
-          </div>
-
-          <SelectField
-            id="sort-by"
-            value={filters.sortBy}
-            onChange={(v) => updateFilter('sortBy', v)}
-            options={[
-              { value: 'createdAt', label: 'Date Created' },
-              { value: 'updatedAt', label: 'Last Updated' },
-              { value: 'dueDate', label: 'Due Date' },
-              { value: 'priority', label: 'Priority' },
-              { value: 'title', label: 'Title' },
-            ]}
-          />
-
-          <SelectField
-            id="sort-order"
-            value={filters.order}
-            onChange={(v) => updateFilter('order', v)}
-            options={[
-              { value: 'desc', label: 'Descending' },
-              { value: 'asc', label: 'Ascending' },
-            ]}
-          />
-        </div>
+        ))}
 
         {/* Clear */}
         {hasActiveFilters && (

@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const taskRoutes = require('./routes/tasks');
 const authRoutes = require('./routes/auth');
 const errorHandler = require('./middleware/errorHandler');
+const { sendSuccess, sendError } = require('./utils/response');
 
 // Connect to MongoDB
 connectDB();
@@ -24,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ success: true, message: 'Task Tracker API is running 🚀' });
+  sendSuccess(res, 200, { message: 'Task Tracker API is running 🚀' });
 });
 
 // Routes
@@ -33,7 +34,7 @@ app.use('/api/tasks', taskRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
+  sendError(res, 404, `Route ${req.originalUrl} not found`);
 });
 
 // Global error handler

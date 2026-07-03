@@ -1,21 +1,13 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { X, Plus, Tag, Save, AlertCircle, CheckSquare } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Plus, Tag, Save, CheckSquare } from 'lucide-react';
 import { formatTag } from '@/lib/utils';
+import FieldInput, { TextAreaField, SelectField, FieldError } from '@/components/ui/FieldInput';
 
 const CHAR_LIMIT = { title: 100, description: 500 };
 
-const FieldError = ({ msg }) =>
-  msg ? (
-    <span className="flex items-center gap-1 text-xs text-red-400 mt-1">
-      <AlertCircle size={12} />
-      {msg}
-    </span>
-  ) : null;
-
 export default function TaskModal({ task, onClose, onSave }) {
   const isEdit = !!task;
-  const titleRef = useRef(null);
 
   const [form, setForm] = useState({
     title: task?.title || '',
@@ -30,7 +22,6 @@ export default function TaskModal({ task, onClose, onSave }) {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    titleRef.current?.focus();
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = '';
@@ -125,95 +116,63 @@ export default function TaskModal({ task, onClose, onSave }) {
 
         {/* Form */}
         <form id="task-form" onSubmit={handleSubmit} className="p-6 flex flex-col gap-4.5 animate-none" noValidate>
-          {/* Title */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="task-title" className="text-[12.5px] font-bold text-[#EEEEEE]/70 flex items-center gap-1.5 uppercase tracking-wider">
-              Title <span className="text-red-400">*</span>
-            </label>
-            <input
-              id="task-title"
-              ref={titleRef}
-              type="text"
-              value={form.title}
-              onChange={(e) => set('title', e.target.value)}
-              placeholder="What needs to be done?"
-              className={`w-full bg-[#222831] border rounded-lg text-[#EEEEEE] text-sm p-3 outline-none focus:border-brand/50 focus:bg-brand/5 transition-all placeholder:text-[#EEEEEE]/45 ${
-                errors.title ? 'border-red-500/50 bg-red-500/5' : 'border-white/8'
-              }`}
-              maxLength={CHAR_LIMIT.title + 1}
-            />
-            <div className="flex items-center justify-between min-h-[18px] mt-1">
-              <FieldError msg={errors.title} />
-              <span className={`text-[10px] ml-auto select-none ${form.title.length > CHAR_LIMIT.title ? 'text-red-400' : 'text-[#EEEEEE]/45'}`}>
-                {form.title.length}/{CHAR_LIMIT.title}
-              </span>
-            </div>
-          </div>
+          <FieldInput
+            id="task-title"
+            label="Title"
+            required
+            value={form.title}
+            onChange={(v) => set('title', v)}
+            placeholder="What needs to be done?"
+            maxLength={CHAR_LIMIT.title}
+            error={errors.title}
+            autoFocus
+          />
 
-          {/* Description */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="task-description" className="text-[12.5px] font-bold text-[#EEEEEE]/70 flex items-center gap-1.5 uppercase tracking-wider">Description</label>
-            <textarea
-              id="task-description"
-              value={form.description}
-              onChange={(e) => set('description', e.target.value)}
-              placeholder="Add more details (optional)…"
-              rows={3}
-              className={`w-full bg-[#222831] border rounded-lg text-[#EEEEEE] text-sm p-3 outline-none focus:border-brand/50 focus:bg-brand/5 transition-all placeholder:text-[#EEEEEE]/45 resize-y min-h-[86px] leading-relaxed ${
-                errors.description ? 'border-red-500/50 bg-red-500/5' : 'border-white/8'
-              }`}
-            />
-            <div className="flex items-center justify-between min-h-[18px] mt-1">
-              <FieldError msg={errors.description} />
-              <span className={`text-[10px] ml-auto select-none ${form.description.length > CHAR_LIMIT.description ? 'text-red-400' : 'text-[#EEEEEE]/45'}`}>
-                {form.description.length}/{CHAR_LIMIT.description}
-              </span>
-            </div>
-          </div>
+          <TextAreaField
+            id="task-description"
+            label="Description"
+            value={form.description}
+            onChange={(v) => set('description', v)}
+            placeholder="Add more details (optional)…"
+            maxLength={CHAR_LIMIT.description}
+            error={errors.description}
+          />
 
-          {/* Status + Priority */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="task-status" className="text-[12.5px] font-bold text-[#EEEEEE]/70 flex items-center gap-1.5 uppercase tracking-wider">Status</label>
-              <select
-                id="task-status"
-                value={form.status}
-                onChange={(e) => set('status', e.target.value)}
-                className="w-full bg-[#222831] border border-white/8 rounded-lg text-[#EEEEEE] text-sm p-3 outline-none focus:border-brand/50 focus:bg-brand/5 transition-all"
-              >
-                <option value="todo" className="bg-[#393E46] text-[#EEEEEE]">To Do</option>
-                <option value="in-progress" className="bg-[#393E46] text-[#EEEEEE]">In Progress</option>
-                <option value="done" className="bg-[#393E46] text-[#EEEEEE]">Done</option>
-              </select>
-            </div>
+            <SelectField
+              id="task-status"
+              label="Status"
+              value={form.status}
+              onChange={(v) => set('status', v)}
+              options={[
+                { value: 'todo', label: 'To Do' },
+                { value: 'in-progress', label: 'In Progress' },
+                { value: 'done', label: 'Done' },
+              ]}
+            />
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="task-priority" className="text-[12.5px] font-bold text-[#EEEEEE]/70 flex items-center gap-1.5 uppercase tracking-wider">Priority</label>
-              <select
-                id="task-priority"
-                value={form.priority}
-                onChange={(e) => set('priority', e.target.value)}
-                className="w-full bg-[#222831] border border-white/8 rounded-lg text-[#EEEEEE] text-sm p-3 outline-none focus:border-brand/50 focus:bg-brand/5 transition-all"
-              >
-                <option value="high" className="bg-[#393E46] text-[#EEEEEE]">High</option>
-                <option value="medium" className="bg-[#393E46] text-[#EEEEEE]">Medium</option>
-                <option value="low" className="bg-[#393E46] text-[#EEEEEE]">Low</option>
-              </select>
-            </div>
+            <SelectField
+              id="task-priority"
+              label="Priority"
+              value={form.priority}
+              onChange={(v) => set('priority', v)}
+              options={[
+                { value: 'high', label: 'High' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'low', label: 'Low' },
+              ]}
+            />
           </div>
 
           {/* Due Date */}
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="task-due-date" className="text-[12.5px] font-bold text-[#EEEEEE]/70 flex items-center gap-1.5 uppercase tracking-wider">Due Date</label>
-            <input
-              id="task-due-date"
-              type="date"
-              value={form.dueDate}
-              onChange={(e) => set('dueDate', e.target.value)}
-              className="w-full bg-[#222831] border border-white/8 rounded-lg text-[#EEEEEE] text-sm p-3 outline-none focus:border-brand/50 focus:bg-brand/5 transition-all"
-              min={new Date().toISOString().substring(0, 10)}
-            />
-          </div>
+          <FieldInput
+            id="task-due-date"
+            label="Due Date"
+            type="date"
+            value={form.dueDate}
+            onChange={(v) => set('dueDate', v)}
+            min={new Date().toISOString().substring(0, 10)}
+          />
 
           {/* Tags */}
           <div className="flex flex-col gap-1.5">
@@ -229,11 +188,7 @@ export default function TaskModal({ task, onClose, onSave }) {
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag();
-                  }
-                  if (e.key === ',') {
+                  if (e.key === 'Enter' || e.key === ',') {
                     e.preventDefault();
                     addTag();
                   }

@@ -96,3 +96,13 @@ export const truncate = (text, max = 100) => {
 
 // Format tag (normalize)
 export const formatTag = (tag) => tag.toLowerCase().replace(/\s+/g, '-');
+
+// Status key mapping
+const STATUS_KEY_MAP = {
+  todo: 'todo',
+  'in-progress': 'inProgress',
+  done: 'done',
+};
+export const statusToStatKey = (status) => STATUS_KEY_MAP[status] || 'todo';
+
+
